@@ -1,0 +1,21 @@
+{
+  "name": "@farmfe/magic-string-linux-x64-musl",
+  "version": "0.0.0",
+  "os": [
+    "linux"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "main": "magic-string.linux-x64-musl.node",
+  "files": [
+    "magic-string.linux-x64-musl.node"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">= 10"
+  },
+  "libc": [
+    "musl"
+  ]
+}

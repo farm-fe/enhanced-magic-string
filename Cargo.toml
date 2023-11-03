@@ -1,6 +1,9 @@
+[workspace]
+members = ["crates/*"]
+
 [package]
 edition = "2021"
-name = "enhanced-magic-string"
+name = "farmfe-enhanced-magic-string"
 version = "0.0.0"
 
 [lib]

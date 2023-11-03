@@ -10,6 +10,7 @@ use crate::{
   utils::get_locator::get_locator,
 };
 
+#[derive(Default)]
 pub struct BundleOptions {
   pub separator: Option<char>,
   pub intro: Option<String>,
@@ -165,5 +166,27 @@ impl Bundle {
     mappings.into_sourcemap_mappings(&mut sourcemap_builder);
 
     Ok(sourcemap_builder.into_sourcemap())
+  }
+}
+
+impl ToString for Bundle {
+  fn to_string(&self) -> String {
+    let body = self
+      .sources
+      .iter()
+      .enumerate()
+      .map(|(i, source)| {
+        let separator = if i > 0 {
+          self.separator.to_string()
+        } else {
+          "".to_string()
+        };
+
+        format!("{}{}", separator, source.to_string())
+      })
+      .collect::<Vec<_>>()
+      .join("");
+
+    format!("{}{}", self.intro, body)
   }
 }

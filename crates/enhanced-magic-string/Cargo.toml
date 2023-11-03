@@ -12,3 +12,7 @@ sourcemap = "6.2.3"
 base64 = "0.21.0"
 farmfe_utils = "0.0.3"
 regex = "1.10.0"
+
+[dev-dependencies]
+glob = "0.3.0"
+relative-path = "1.9"

@@ -1,6 +1,9 @@
+// Credit to [magic-string](https://www.npmjs.com/package/magic-string), see [license](./LICENSE)
 pub mod bundle;
-pub mod chunk;
-pub mod error;
+mod chunk;
+pub mod collapse_sourcemap;
+mod error;
 pub mod magic_string;
-pub mod mappings;
-pub mod utils;
+mod mappings;
+pub mod types;
+mod utils;

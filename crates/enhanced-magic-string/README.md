@@ -1,5 +1,5 @@
 # enhanced-magic-string
-Alternative Rust implementation of https://www.npmjs.com/package/magic-string with original sourcemap chain support.
+Rust implementation of https://www.npmjs.com/package/magic-string with original sourcemap chain support. [license](./LICENSE).
 
 This project is built for the [Farm](https://github.com/farm-fe/farm) project, which is a extremely fast vite-compatible web build tool written in Rust.
 

@@ -1,7 +1,7 @@
 use enhanced_magic_string::{
   bundle::BundleOptions,
   magic_string::{MagicString, MagicStringOptions},
-  mappings::SourceMapOptions,
+  types::SourceMapOptions,
 };
 use farmfe_utils::relative;
 
@@ -9,7 +9,7 @@ mod common;
 
 #[test]
 fn bundle() {
-  fixture!("tests/fixtures/bundle/**/input.js", |file, crate_path| {
+  fixture!("tests/fixtures/bundle/**/input.js", |file, _| {
     println!("[bundle test] file: {:?}", file);
     // read files under modules directory
     let mut modules = vec![];

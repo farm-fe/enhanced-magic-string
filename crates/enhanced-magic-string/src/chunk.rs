@@ -5,12 +5,12 @@ use crate::utils::char_string::CharString;
 pub struct Chunk {
   pub start: usize,
   pub end: usize,
-  pub original: String,
+  pub original: CharString,
 
-  pub intro: String,
-  pub outro: String,
+  pub intro: CharString,
+  pub outro: CharString,
 
-  pub content: String,
+  pub content: CharString,
   pub store_name: bool,
   pub edited: bool,
 
@@ -19,13 +19,13 @@ pub struct Chunk {
 }
 
 impl Chunk {
-  pub fn new(start: usize, end: usize, content: String) -> Self {
+  pub fn new(start: usize, end: usize, content: CharString) -> Self {
     Self {
       start,
       end,
       original: content.clone(),
-      intro: "".to_string(),
-      outro: "".to_string(),
+      intro: CharString::new(""),
+      outro: CharString::new(""),
       content,
       store_name: false,
       edited: false,
@@ -79,9 +79,9 @@ mod tests {
   use super::*;
   #[test]
   fn each_next() {
-    let mut chunk = Chunk::new(0, 1, "a".to_string());
-    let mut chunk2 = Chunk::new(1, 2, "b".to_string());
-    let mut chunk3 = Chunk::new(2, 3, "c".to_string());
+    let mut chunk = Chunk::new(0, 1, "a".into());
+    let mut chunk2 = Chunk::new(1, 2, "b".into());
+    let mut chunk3 = Chunk::new(2, 3, "c".into());
 
     chunk.next = Some(NonNull::new(&mut chunk2).unwrap());
     chunk2.next = Some(NonNull::new(&mut chunk3).unwrap());
@@ -89,7 +89,7 @@ mod tests {
     let mut result = vec![];
 
     chunk.each_next(|chunk| {
-      result.push(chunk.content.clone());
+      result.push(chunk.content.to_string());
     });
 
     assert_eq!(

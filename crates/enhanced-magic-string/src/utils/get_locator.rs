@@ -1,13 +1,14 @@
-pub fn get_locator(code: &str) -> impl Fn(usize) -> Loc {
-  let lines = code.lines().collect::<Vec<_>>();
-  let line_offsets = lines
-    .iter()
-    .scan(0, |acc, line| {
-      let offset = *acc;
-      *acc += line.len() + 1;
-      Some(offset)
-    })
-    .collect::<Vec<_>>();
+use super::char_string::CharString;
+
+pub fn get_locator(code: &CharString) -> impl Fn(usize) -> Loc {
+  let lines = code.split('\n');
+  let mut line_offsets = vec![];
+  let mut pos = 0;
+
+  for line in lines {
+    line_offsets.push(pos);
+    pos += line.len() + 1;
+  }
 
   move |pos| {
     // binary search
@@ -31,6 +32,7 @@ pub fn get_locator(code: &str) -> impl Fn(usize) -> Loc {
   }
 }
 
+#[derive(Debug, Clone)]
 pub struct Loc {
   pub line: usize,
   pub column: usize,

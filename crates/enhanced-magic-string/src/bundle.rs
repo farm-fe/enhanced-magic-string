@@ -7,23 +7,23 @@ use crate::{
   error::{Error, Result},
   magic_string::MagicString,
   mappings::{Mappings, MappingsOptionHires, SourceMapOptions},
-  utils::get_locator::get_locator,
+  utils::{char_string::CharString, get_locator::get_locator},
 };
 
 #[derive(Default)]
 pub struct BundleOptions {
   pub separator: Option<char>,
-  pub intro: Option<String>,
+  pub intro: Option<CharString>,
 }
 
 struct UniqueSource {
   pub filename: String,
-  pub content: String,
+  pub content: CharString,
 }
 
 pub struct Bundle {
   separator: char,
-  intro: String,
+  intro: CharString,
   sources: Vec<MagicString>,
   unique_sources: Vec<UniqueSource>,
   unique_source_index_by_filename: HashMap<String, usize>,
@@ -33,7 +33,7 @@ impl Bundle {
   pub fn new(options: BundleOptions) -> Self {
     Self {
       separator: options.separator.unwrap_or('\n'),
-      intro: options.intro.unwrap_or("".to_string()),
+      intro: options.intro.unwrap_or("".into()),
       sources: vec![],
       unique_sources: vec![],
       unique_source_index_by_filename: HashMap::new(),
@@ -82,7 +82,7 @@ impl Bundle {
 
     self.sources.iter().enumerate().for_each(|(i, source)| {
       if i > 0 {
-        mappings.advance(&self.separator.to_string());
+        mappings.advance(&self.separator.into());
       }
 
       let source_index: isize = if let Some(filename) = &source.filename {
@@ -92,7 +92,7 @@ impl Bundle {
       } else {
         -1
       };
-      let locate = get_locator(source.original.as_str());
+      let locate = get_locator(&source.original);
 
       if !source.intro.is_empty() {
         mappings.advance(&source.intro);
@@ -107,6 +107,7 @@ impl Bundle {
 
         if source.filename.is_some() {
           if chunk.edited {
+            unimplemented!("chunk.edited");
           } else {
             mappings.add_unedited_chunk(
               source_index,
@@ -148,19 +149,16 @@ impl Bundle {
       };
       let src_id = sourcemap_builder.add_source(&filename);
       let inline_content = opts.include_content.unwrap_or(false);
-
-      sourcemap_builder.set_source_contents(
-        src_id,
-        if inline_content {
-          Some(&source.content)
-        } else {
-          None
-        },
-      );
+      let content = if inline_content {
+        Some(source.content.to_string())
+      } else {
+        None
+      };
+      sourcemap_builder.set_source_contents(src_id, content.as_deref());
     });
 
     names.into_iter().for_each(|name| {
-      sourcemap_builder.add_name(&name);
+      sourcemap_builder.add_name(&name.to_string());
     });
 
     mappings.into_sourcemap_mappings(&mut sourcemap_builder);

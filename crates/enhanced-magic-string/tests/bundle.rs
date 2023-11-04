@@ -3,6 +3,7 @@ use enhanced_magic_string::{
   magic_string::{MagicString, MagicStringOptions},
   mappings::SourceMapOptions,
 };
+use farmfe_utils::relative;
 
 mod common;
 
@@ -23,15 +24,12 @@ fn bundle() {
         let path = path.unwrap();
         let content = std::fs::read_to_string(&path).unwrap();
         modules.push(MagicString::new(
-          content,
+          &content,
           Some(MagicStringOptions {
-            filename: Some(
-              path
-                .to_string_lossy()
-                .strip_prefix(dir.to_string_lossy().as_ref())
-                .unwrap()
-                .to_string(),
-            ),
+            filename: Some(relative(
+              dir.to_string_lossy().to_string().as_str(),
+              path.to_str().unwrap(),
+            )),
             ..Default::default()
           }),
         ));
@@ -40,15 +38,12 @@ fn bundle() {
 
     let file_content = std::fs::read_to_string(&file).unwrap();
     let magic_string = MagicString::new(
-      file_content,
+      &file_content,
       Some(MagicStringOptions {
-        filename: Some(
-          file
-            .strip_prefix(dir.to_string_lossy().as_ref())
-            .unwrap()
-            .to_string_lossy()
-            .to_string(),
-        ),
+        filename: Some(relative(
+          dir.to_string_lossy().to_string().as_str(),
+          file.to_str().unwrap(),
+        )),
         ..Default::default()
       }),
     );
@@ -60,11 +55,20 @@ fn bundle() {
     });
 
     let code = bundle.to_string();
-    println!("{}", code);
-    let map = bundle.generate_map(SourceMapOptions::default()).unwrap();
+    let map = bundle
+      .generate_map(SourceMapOptions {
+        include_content: Some(true),
+        ..Default::default()
+      })
+      .unwrap();
     let mut src_buf = vec![];
     map.to_writer(&mut src_buf).unwrap();
     let map_str = String::from_utf8(src_buf).unwrap();
-    println!("{}", map_str);
+
+    let expected = std::fs::read_to_string(dir.join("output.js")).unwrap();
+    assert_eq!(code, expected);
+
+    let expected_map = std::fs::read_to_string(dir.join("output.js.map")).unwrap();
+    assert_eq!(map_str, expected_map);
   });
 }

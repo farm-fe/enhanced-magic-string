@@ -1,3 +1,4 @@
+/* header */
 import { m1 } from "./modules/m-1";
 import { m2 } from "./modules/m-2";
 
@@ -16,4 +17,4 @@ export function m2() {
   console.log('in m2');
   console.log('in m2 too');
   return "m2";
-}
+}//# sourceMappingURL=output.js.map

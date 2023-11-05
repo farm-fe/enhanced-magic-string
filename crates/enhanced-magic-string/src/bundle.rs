@@ -23,6 +23,11 @@ struct UniqueSource {
   pub content: CharString,
 }
 
+pub struct AddSourceOptions {
+  pub separator: char,
+  pub filename: Option<String>,
+}
+
 pub struct Bundle {
   separator: char,
   intro: CharString,
@@ -44,8 +49,22 @@ impl Bundle {
     }
   }
 
-  pub fn add_source(&mut self, source: MagicString) -> Result<()> {
-    if let Some(filename) = &source.filename {
+  pub fn add_source(
+    &mut self,
+    mut source: MagicString,
+    opts: Option<AddSourceOptions>,
+  ) -> Result<()> {
+    let filename = opts
+      .as_ref()
+      .and_then(|opts| opts.filename.as_ref())
+      .or(source.filename.as_ref());
+    let separator = opts
+      .as_ref()
+      .map(|opts| opts.separator)
+      .unwrap_or(self.separator);
+    source.separator = separator;
+
+    if let Some(filename) = filename {
       if let Some(index) = self.unique_source_index_by_filename.get(filename) {
         let unique_source = &self.unique_sources[*index];
 
@@ -86,7 +105,13 @@ impl Bundle {
 
     self.sources.iter().enumerate().for_each(|(i, source)| {
       if i > 0 {
-        mappings.advance(&self.separator.into());
+        // replace \0 to empty string
+        let separator = if source.separator == '\0' {
+          CharString::new("")
+        } else {
+          CharString::from(source.separator)
+        };
+        mappings.advance(&separator);
       }
 
       let source_index: isize = if let Some(filename) = &source.filename {
@@ -221,6 +246,24 @@ impl Bundle {
 
     self.sources.get(*source_index)
   }
+
+  pub fn append(&mut self, str: &str, opts: Option<AddSourceOptions>) {
+    self
+      .add_source(
+        MagicString::new(str, None),
+        opts.or(Some(AddSourceOptions {
+          separator: '\0',
+          filename: None,
+        })),
+      )
+      .unwrap();
+  }
+
+  pub fn prepend(&mut self, str: &str) {
+    let mut new_intro = CharString::new(str);
+    new_intro.append(&self.intro);
+    self.intro = new_intro;
+  }
 }
 
 impl ToString for Bundle {
@@ -230,8 +273,8 @@ impl ToString for Bundle {
       .iter()
       .enumerate()
       .map(|(i, source)| {
-        let separator = if i > 0 {
-          self.separator.to_string()
+        let separator = if i > 0 && source.separator != '\0' {
+          source.separator.to_string()
         } else {
           "".to_string()
         };

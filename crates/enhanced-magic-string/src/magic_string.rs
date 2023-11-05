@@ -39,6 +39,8 @@ pub struct MagicString {
   pub ignore_list: Vec<CharString>,
   source_map_chain: Vec<String>,
   collapsed_sourcemap: RefCell<Option<SourceMap>>,
+
+  pub separator: char,
 }
 
 impl MagicString {
@@ -64,6 +66,7 @@ impl MagicString {
       ignore_list: options.ignore_list,
       source_map_chain: options.source_map_chain,
       collapsed_sourcemap: RefCell::new(None),
+      separator: '\n',
     };
 
     magic_string
@@ -96,6 +99,18 @@ impl MagicString {
     cached_map.replace(collapsed_sourcemap.clone());
 
     Some(collapsed_sourcemap)
+  }
+
+  pub fn prepend(&mut self, str: &str) {
+    let mut new_intro = CharString::new(str);
+    new_intro.append(&self.intro);
+    self.intro = new_intro;
+  }
+
+  pub fn append(&mut self, str: &str) {
+    let mut new_outro = self.outro.clone();
+    new_outro.append_str(str);
+    self.outro = new_outro;
   }
 }
 

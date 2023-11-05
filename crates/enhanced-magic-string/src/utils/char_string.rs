@@ -61,6 +61,14 @@ impl CharString {
 
     Some(self.chars.remove(index))
   }
+
+  pub fn append_str(&mut self, other: &str) {
+    self.chars.extend(other.chars());
+  }
+
+  pub fn append(&mut self, other: &CharString) {
+    self.chars.extend(other.chars.iter());
+  }
 }
 
 impl From<&str> for CharString {

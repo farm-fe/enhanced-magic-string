@@ -9,11 +9,11 @@ Implement all APIs of [magic-string](https://www.npmjs.com/package/magic-string)
 ## Bundle
 - [x] addSource
 - [x] generateMap
-- [ ] append
+- [x] append
 - [ ] generateDecodedMap
 - [ ] getIndentString
 - [ ] indent
-- [ ] prepend
+- [x] prepend
 - [x] toString
 - [ ] isEmpty
 - [ ] length
@@ -24,7 +24,7 @@ Implement all APIs of [magic-string](https://www.npmjs.com/package/magic-string)
 
 ## MagicString
 - [ ] addSourcemapLocation
-- [ ] append
+- [x] append
 - [ ] appendLeft
 - [ ] appendRight
 - [ ] clone
@@ -35,14 +35,14 @@ Implement all APIs of [magic-string](https://www.npmjs.com/package/magic-string)
 - [ ] move
 - [ ] overwrite
 - [ ] update
-- [ ] prepend
+- [x] prepend
 - [ ] prependLeft
 - [ ] prependRight
 - [ ] remove
 - [ ] lastChar
 - [ ] lastLine
 - [ ] slice
-- [ ] toString
+- [x] toString
 - [ ] isEmpty
 - [ ] length
 - [ ] trimLines

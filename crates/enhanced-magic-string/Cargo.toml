@@ -1,7 +1,7 @@
 [package]
 edition = "2021"
 name = "enhanced-magic-string"
-version = "0.0.1"
+version = "0.0.2"
 description = "Rust based magic-string implementation with sourcemap chains support"
 authors = ["brightwu(吴明亮) <1521488775@qq.com>"]
 license = "MIT"

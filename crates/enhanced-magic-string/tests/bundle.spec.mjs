@@ -35,6 +35,10 @@ test('expected magic-string result', (t) => {
       bundle.addSource(new MagicString(module.content, { filename: module.path }));
     });
 
+
+    bundle.prepend("/* header */\n");
+    bundle.append("//# sourceMappingURL=output.js.map");
+
     const output = bundle.toString();
     const map = bundle.generateMap({ includeContent: true });
     

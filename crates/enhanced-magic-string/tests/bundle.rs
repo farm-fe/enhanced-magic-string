@@ -48,11 +48,14 @@ fn bundle() {
       }),
     );
     let mut bundle = enhanced_magic_string::bundle::Bundle::new(BundleOptions::default());
-    bundle.add_source(magic_string).unwrap();
+    bundle.add_source(magic_string, None).unwrap();
 
     modules.into_iter().for_each(|module| {
-      bundle.add_source(module).unwrap();
+      bundle.add_source(module, None).unwrap();
     });
+
+    bundle.prepend("/* header */\n");
+    bundle.append("//# sourceMappingURL=output.js.map", None);
 
     let code = bundle.to_string();
     let map = bundle
@@ -69,6 +72,6 @@ fn bundle() {
     assert_eq!(code, expected);
 
     let expected_map = std::fs::read_to_string(dir.join("output.js.map")).unwrap();
-    assert_eq!(map_str, expected_map);
+    assert_eq!(map_str, expected_map.replace(";\"}", "\"}"));
   });
 }

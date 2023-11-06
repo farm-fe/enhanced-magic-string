@@ -1,9 +1,9 @@
 use std::{
-  cell::RefCell,
   collections::{HashMap, HashSet},
-  rc::Rc,
+  sync::Arc,
 };
 
+use parking_lot::Mutex;
 use sourcemap::SourceMap;
 
 use crate::{
@@ -17,7 +17,7 @@ pub struct MagicStringOptions {
   pub filename: Option<String>,
   pub indent_exclusion_ranges: Vec<ExclusionRange>,
   pub ignore_list: Vec<CharString>,
-  pub source_map_chain: Vec<String>,
+  pub source_map_chain: Vec<Arc<String>>,
 }
 
 pub struct MagicString {
@@ -25,11 +25,11 @@ pub struct MagicString {
   pub outro: CharString,
   pub intro: CharString,
 
-  pub first_chunk: Rc<Chunk>,
-  pub last_chunk: Rc<Chunk>,
-  pub last_searched_chunk: Rc<Chunk>,
-  pub chunk_by_start: HashMap<usize, Rc<Chunk>>,
-  pub chunk_by_end: HashMap<usize, Rc<Chunk>>,
+  pub first_chunk: Arc<Mutex<Chunk>>,
+  pub last_chunk: Arc<Mutex<Chunk>>,
+  pub last_searched_chunk: Arc<Mutex<Chunk>>,
+  pub chunk_by_start: HashMap<usize, Arc<Mutex<Chunk>>>,
+  pub chunk_by_end: HashMap<usize, Arc<Mutex<Chunk>>>,
 
   pub filename: Option<String>,
   pub indent_exclusion_ranges: Vec<ExclusionRange>,
@@ -37,8 +37,8 @@ pub struct MagicString {
   pub stored_names: HashMap<CharString, bool>,
   pub indent_str: Option<CharString>,
   pub ignore_list: Vec<CharString>,
-  source_map_chain: Vec<String>,
-  collapsed_sourcemap: RefCell<Option<SourceMap>>,
+  source_map_chain: Vec<Arc<String>>,
+  collapsed_sourcemap: Mutex<Option<String>>,
 
   pub separator: char,
 }
@@ -47,7 +47,7 @@ impl MagicString {
   pub fn new(original: &str, options: Option<MagicStringOptions>) -> Self {
     let options = options.unwrap_or_default();
     let original = CharString::new(original);
-    let chunk = Rc::new(Chunk::new(0, original.len(), original.clone()));
+    let chunk = Arc::new(Mutex::new(Chunk::new(0, original.len(), original.clone())));
 
     let mut magic_string = Self {
       original: original.clone(),
@@ -65,7 +65,7 @@ impl MagicString {
       indent_str: None,
       ignore_list: options.ignore_list,
       source_map_chain: options.source_map_chain,
-      collapsed_sourcemap: RefCell::new(None),
+      collapsed_sourcemap: Mutex::new(None),
       separator: '\n',
     };
 
@@ -80,8 +80,8 @@ impl MagicString {
   }
 
   pub fn get_collapsed_sourcemap(&self) -> Option<SourceMap> {
-    if let Some(collapsed_sourcemap) = self.collapsed_sourcemap.borrow().as_ref() {
-      return Some(collapsed_sourcemap.clone());
+    if let Some(collapsed_sourcemap) = self.collapsed_sourcemap.lock().as_ref() {
+      return Some(SourceMap::from_slice(collapsed_sourcemap.as_bytes()).unwrap());
     }
 
     if self.source_map_chain.is_empty() {
@@ -95,8 +95,11 @@ impl MagicString {
       .collect::<Vec<_>>();
 
     let collapsed_sourcemap = collapse_sourcemap_chain(source_map_chain, Default::default());
-    let mut cached_map = self.collapsed_sourcemap.borrow_mut();
-    cached_map.replace(collapsed_sourcemap.clone());
+    let mut cached_map = self.collapsed_sourcemap.lock();
+
+    let mut buf = vec![];
+    collapsed_sourcemap.to_writer(&mut buf).unwrap();
+    cached_map.replace(String::from_utf8(buf).unwrap());
 
     Some(collapsed_sourcemap)
   }
@@ -117,7 +120,8 @@ impl MagicString {
 impl ToString for MagicString {
   fn to_string(&self) -> String {
     let mut str = self.intro.to_string();
-    let mut chunk = Some(self.first_chunk.as_ref());
+    let guard = self.first_chunk.lock();
+    let mut chunk = Some(&*guard);
 
     while let Some(c) = chunk {
       str += &c.to_string();
@@ -126,5 +130,20 @@ impl ToString for MagicString {
 
     str += &self.outro.to_string();
     str
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn to_string() {
+    let mut magic_string = MagicString::new("hello world", None);
+    magic_string.append("!");
+    magic_string.prepend("/* ");
+    magic_string.append(" */");
+
+    assert_eq!(magic_string.to_string(), "/* hello world! */");
   }
 }

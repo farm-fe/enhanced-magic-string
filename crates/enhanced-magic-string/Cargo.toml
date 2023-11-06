@@ -1,7 +1,7 @@
 [package]
 edition = "2021"
 name = "enhanced-magic-string"
-version = "0.0.2"
+version = "0.0.6"
 description = "Rust based magic-string implementation with sourcemap chains support"
 authors = ["brightwu(吴明亮) <1521488775@qq.com>"]
 license = "MIT"
@@ -12,6 +12,7 @@ sourcemap = "6.2.3"
 base64 = "0.21.0"
 farmfe_utils = "0.0.3"
 regex = "1.10.0"
+parking_lot = { version = "0.12", features = ["deadlock_detection"] }
 
 [dev-dependencies]
 glob = "0.3.0"

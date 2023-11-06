@@ -4,6 +4,7 @@ use enhanced_magic_string::{
   types::SourceMapOptions,
 };
 use farmfe_utils::relative;
+use parking_lot::Mutex;
 
 mod common;
 
@@ -74,4 +75,34 @@ fn bundle() {
     let expected_map = std::fs::read_to_string(dir.join("output.js.map")).unwrap();
     assert_eq!(map_str, expected_map.replace(";\"}", "\"}"));
   });
+}
+
+#[test]
+fn bundle_multi_thread() {
+  let bundle = Mutex::new(enhanced_magic_string::bundle::Bundle::new(
+    BundleOptions::default(),
+  ));
+
+  std::thread::scope(|s| {
+    s.spawn(|| {
+      let mut a = MagicString::new("a", None);
+      a.prepend("/* ");
+      a.append(" */");
+
+      bundle.lock().add_source(a, None).unwrap();
+    });
+  });
+
+  std::thread::scope(|s| {
+    s.spawn(|| {
+      let mut b = MagicString::new("b", None);
+      b.prepend("/* ");
+      b.append(" */");
+
+      bundle.lock().add_source(b, None).unwrap();
+    });
+  });
+
+  let code = bundle.lock().to_string();
+  assert_eq!(code, "/* a */\n/* b */");
 }

@@ -127,7 +127,7 @@ impl Bundle {
         mappings.advance(&source.intro);
       }
 
-      source.first_chunk.each_next(|chunk| {
+      source.first_chunk.lock().each_next(|chunk| {
         let loc = locate(chunk.start);
 
         if !chunk.intro.is_empty() {

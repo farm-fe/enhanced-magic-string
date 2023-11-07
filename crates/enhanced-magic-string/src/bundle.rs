@@ -198,13 +198,16 @@ impl Bundle {
       // try trace back to original sourcemap of each source
       let mut trace_sourcemap_builder =
         SourceMapBuilder::new(opts.file.as_ref().map(|f| f.as_str()));
+      let mut collapsed_sourcemap_cache = HashMap::new();
 
       for token in map.tokens() {
         let mut traced = false;
 
         if let Some(source_filename) = token.get_source() {
           if let Some(source) = self.get_source_by_filename(source_filename) {
-            let collapsed_sourcemap = source.get_collapsed_sourcemap();
+            let collapsed_sourcemap = collapsed_sourcemap_cache
+              .entry(source_filename.to_string())
+              .or_insert_with(|| source.get_collapsed_sourcemap());
 
             if let Some(collapsed_map) = collapsed_sourcemap {
               if let Some(map_token) =

@@ -48,4 +48,7 @@ pub struct SourceMapOptions {
 
   /// Whether to include the original content in the map's sourcesContent array.
   pub include_content: Option<bool>,
+
+  /// remap source filename
+  pub remap_source: Option<Box<dyn Fn(&str) -> String>>,
 }

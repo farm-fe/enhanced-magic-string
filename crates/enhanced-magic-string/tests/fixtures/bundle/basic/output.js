@@ -8,13 +8,13 @@ function main() {
 }
 
 main();
-export function m1() {
+/* module */export function m1() {
   console.log('in m1');
   return "m1";
-}
-export function m2() {
+}/* end of module */
+/* module */export function m2() {
   debugger;
   console.log('in m2');
   console.log('in m2 too');
   return "m2";
-}//# sourceMappingURL=output.js.map
+}/* end of module *///# sourceMappingURL=output.js.map

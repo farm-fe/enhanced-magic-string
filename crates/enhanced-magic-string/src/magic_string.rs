@@ -6,9 +6,7 @@ use std::{
 use parking_lot::Mutex;
 use sourcemap::SourceMap;
 
-use crate::{
-  chunk::Chunk, collapse_sourcemap::collapse_sourcemap_chain, utils::char_string::CharString,
-};
+use crate::{chunk::Chunk, utils::char_string::CharString};
 
 pub type ExclusionRange = (usize, usize);
 
@@ -38,7 +36,6 @@ pub struct MagicString {
   pub indent_str: Option<CharString>,
   pub ignore_list: Vec<CharString>,
   source_map_chain: Vec<Arc<String>>,
-  collapsed_sourcemap: Mutex<Option<String>>,
 
   pub separator: char,
 }
@@ -65,7 +62,6 @@ impl MagicString {
       indent_str: None,
       ignore_list: options.ignore_list,
       source_map_chain: options.source_map_chain,
-      collapsed_sourcemap: Mutex::new(None),
       separator: '\n',
     };
 
@@ -79,29 +75,12 @@ impl MagicString {
     magic_string
   }
 
-  pub fn get_collapsed_sourcemap(&self) -> Option<SourceMap> {
-    if let Some(collapsed_sourcemap) = self.collapsed_sourcemap.lock().as_ref() {
-      return Some(SourceMap::from_slice(collapsed_sourcemap.as_bytes()).unwrap());
-    }
-
-    if self.source_map_chain.is_empty() {
-      return None;
-    }
-
-    let source_map_chain = self
+  pub fn get_source_map_chain(&self) -> Vec<SourceMap> {
+    self
       .source_map_chain
       .iter()
-      .map(|s| SourceMap::from_slice(s.as_bytes()).unwrap())
-      .collect::<Vec<_>>();
-
-    let collapsed_sourcemap = collapse_sourcemap_chain(source_map_chain, Default::default());
-    let mut cached_map = self.collapsed_sourcemap.lock();
-
-    let mut buf = vec![];
-    collapsed_sourcemap.to_writer(&mut buf).unwrap();
-    cached_map.replace(String::from_utf8(buf).unwrap());
-
-    Some(collapsed_sourcemap)
+      .map(|source| SourceMap::from_slice(source.as_bytes()).unwrap())
+      .collect()
   }
 
   pub fn prepend(&mut self, str: &str) {

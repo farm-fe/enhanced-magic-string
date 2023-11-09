@@ -9,7 +9,7 @@ import MagicString, { Bundle } from 'magic-string';
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 
 test('expected magic-string result', (t) => {
-  const paths = fg.sync("fixtures/**/input.js", { cwd: currentDir, absolute: true });
+  const paths = fg.sync("fixtures/bundle/**/input.js", { cwd: currentDir, absolute: true });
 
   paths.forEach((inputPath) => {
     const dir = path.dirname(inputPath);
@@ -19,7 +19,7 @@ test('expected magic-string result', (t) => {
     const modulesDir = path.join(path.dirname(inputPath), 'modules');
     const modules = fs.readdirSync(modulesDir).map((module) => path.join(modulesDir, module));
 
-    const moduleContents = modules.map((module) => {
+    const moduleContents = modules.filter(m => m.endsWith(".js")).map((module) => {
       return {
         path: get_relative_path(module),
         content: fs.readFileSync(module, 'utf-8')
@@ -32,7 +32,10 @@ test('expected magic-string result', (t) => {
     bundle.addSource(input);
 
     moduleContents.forEach((module) => {
-      bundle.addSource(new MagicString(module.content, { filename: module.path }));
+      const m = new MagicString(module.content, { filename: module.path });
+      m.prepend("/* module */");
+      m.append("/* end of module */");
+      bundle.addSource(m);
     });
 
 

@@ -8,13 +8,13 @@ function 主要入口() {
 }
 
 主要入口();
-export function 模块1() {
+/* module */export function 模块1() {
   console.log('in 模块1');
   return "模块1";
-}
-export function 模块2() {
+}/* end of module */
+/* module */export function 模块2() {
   debugger;
   console.log('在模块2中');
   console.log('也在模块2中');
   return "模块2";
-}//# sourceMappingURL=output.js.map
+}/* end of module *///# sourceMappingURL=output.js.map

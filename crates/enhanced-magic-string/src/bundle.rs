@@ -4,6 +4,7 @@ use farmfe_utils::relative;
 use sourcemap::{SourceMap, SourceMapBuilder};
 
 use crate::{
+  collapse_sourcemap::{lookup_token, read_source_content},
   error::{Error, Result},
   magic_string::MagicString,
   mappings::Mappings,
@@ -199,42 +200,70 @@ impl Bundle {
       let mut trace_sourcemap_builder =
         SourceMapBuilder::new(opts.file.as_ref().map(|f| f.as_str()));
       let mut collapsed_sourcemap_cache = HashMap::new();
+      let mut mapped_src_cache = HashMap::new();
 
       for token in map.tokens() {
-        let mut traced = false;
-
         if let Some(source_filename) = token.get_source() {
           if let Some(source) = self.get_source_by_filename(source_filename) {
-            let collapsed_sourcemap = collapsed_sourcemap_cache
+            let source_map_chain = collapsed_sourcemap_cache
               .entry(source_filename.to_string())
-              .or_insert_with(|| source.get_collapsed_sourcemap());
+              .or_insert_with(|| source.get_source_map_chain());
 
-            if let Some(collapsed_map) = collapsed_sourcemap {
-              if let Some(map_token) =
-                collapsed_map.lookup_token(token.get_src_line(), token.get_src_col())
+            if source_map_chain.is_empty() {
+              trace_sourcemap_builder.add_token(&token, true);
+              continue;
+            }
+
+            let mut is_trace_completed = true;
+            let mut map_token = token;
+
+            for map in source_map_chain.iter() {
+              // if the token can not be found in source map chain, it will be ignored.
+              if let Some(m_token) = lookup_token(map, token.get_src_line(), token.get_src_col()) {
+                map_token = m_token;
+              } else {
+                is_trace_completed = false;
+                break;
+              }
+            }
+
+            if is_trace_completed {
+              let src = if let Some(src) = map_token.get_source() {
+                Some(if let Some(remap_source) = &opts.remap_source {
+                  mapped_src_cache
+                    .entry(src.to_string())
+                    .or_insert_with(|| remap_source(src))
+                    .to_string()
+                } else {
+                  src.to_string()
+                })
+              } else {
+                None
+              };
+
+              let added_token = trace_sourcemap_builder.add(
+                token.get_dst_line(),
+                token.get_dst_col(),
+                map_token.get_src_line(),
+                map_token.get_src_col(),
+                src.as_deref(),
+                map_token.get_name(),
+              );
+
+              let inline_content = opts.include_content.unwrap_or(false);
+
+              if inline_content && !trace_sourcemap_builder.has_source_contents(added_token.src_id)
               {
-                let added_token = trace_sourcemap_builder.add(
-                  token.get_dst_line(),
-                  token.get_dst_col(),
-                  map_token.get_src_line(),
-                  map_token.get_src_col(),
-                  map_token.get_source(),
-                  map_token.get_name(),
-                );
+                let source_content =
+                  read_source_content(map_token, source_map_chain.last().unwrap());
 
-                if let Some(src_content) = map_token.get_source_view() {
+                if let Some(source_content) = source_content {
                   trace_sourcemap_builder
-                    .set_source_contents(added_token.src_id, Some(src_content.source()));
+                    .set_source_contents(added_token.src_id, Some(&source_content));
                 }
-
-                traced = true;
               }
             }
           }
-        }
-
-        if !traced {
-          trace_sourcemap_builder.add_token(&token, true);
         }
       }
 

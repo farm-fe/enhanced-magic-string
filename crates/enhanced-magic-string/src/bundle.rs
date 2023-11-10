@@ -173,11 +173,14 @@ impl Bundle {
     let mut sourcemap_builder = SourceMapBuilder::new(opts.file.as_ref().map(|f| f.as_str()));
 
     self.unique_sources.iter().for_each(|source| {
-      let filename = if let Some(file) = &opts.file {
+      let mut filename = if let Some(file) = &opts.file {
         relative(file, &source.filename)
       } else {
         source.filename.clone()
       };
+      if let Some(remap_source) = &opts.remap_source {
+        filename = remap_source(&filename);
+      }
       let src_id = sourcemap_builder.add_source(&filename);
       let inline_content = opts.include_content.unwrap_or(false);
       let content = if inline_content {

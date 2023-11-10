@@ -80,6 +80,10 @@ impl MagicString {
       .source_map_chain
       .iter()
       .map(|source| SourceMap::from_slice(source.as_bytes()).unwrap())
+      .filter(|source| {
+        // if the source map is empty, we should ignore it
+        source.get_token_count() > 0
+      })
       .collect()
   }
 

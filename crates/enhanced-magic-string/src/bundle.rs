@@ -173,14 +173,11 @@ impl Bundle {
     let mut sourcemap_builder = SourceMapBuilder::new(opts.file.as_ref().map(|f| f.as_str()));
 
     self.unique_sources.iter().for_each(|source| {
-      let mut filename = if let Some(file) = &opts.file {
+      let filename = if let Some(file) = &opts.file {
         relative(file, &source.filename)
       } else {
         source.filename.clone()
       };
-      if let Some(remap_source) = &opts.remap_source {
-        filename = remap_source(&filename);
-      }
       let src_id = sourcemap_builder.add_source(&filename);
       let inline_content = opts.include_content.unwrap_or(false);
       let content = if inline_content {
@@ -211,11 +208,6 @@ impl Bundle {
             let source_map_chain = collapsed_sourcemap_cache
               .entry(source_filename.to_string())
               .or_insert_with(|| source.get_source_map_chain());
-
-            if source_map_chain.is_empty() {
-              trace_sourcemap_builder.add_token(&token, true);
-              continue;
-            }
 
             let mut is_trace_completed = true;
             let mut map_token = token;
@@ -258,7 +250,7 @@ impl Bundle {
               if inline_content && !trace_sourcemap_builder.has_source_contents(added_token.src_id)
               {
                 let source_content =
-                  read_source_content(map_token, source_map_chain.last().unwrap());
+                  read_source_content(map_token, source_map_chain.last().unwrap_or(&map));
 
                 if let Some(source_content) = source_content {
                   trace_sourcemap_builder

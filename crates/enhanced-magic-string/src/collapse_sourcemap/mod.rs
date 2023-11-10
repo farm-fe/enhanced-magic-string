@@ -35,11 +35,7 @@ pub fn collapse_sourcemap_chain(
 ) -> SourceMap {
   chain.reverse();
 
-  if chain.len() == 1 {
-    return chain.remove(0);
-  }
-
-  let dest_map = chain.remove(0);
+  let dest_map = &chain[0];
   let mut builder = SourceMapBuilder::new(None);
   let mut mapped_src_cache = std::collections::HashMap::new();
 
@@ -48,21 +44,23 @@ pub fn collapse_sourcemap_chain(
     let mut last_map_token = token;
     let mut completed_trace = true;
 
-    for map in &chain {
-      if let Some(map_token) = lookup_token(
-        map,
-        last_map_token.get_src_line(),
-        last_map_token.get_src_col(),
-      ) {
-        last_map_token = map_token;
-      } else {
-        completed_trace = false;
-        break;
+    if chain.len() > 1 {
+      for map in &chain[1..] {
+        if let Some(map_token) = lookup_token(
+          map,
+          last_map_token.get_src_line(),
+          last_map_token.get_src_col(),
+        ) {
+          last_map_token = map_token;
+        } else {
+          completed_trace = false;
+          break;
+        }
       }
     }
 
     // if we can't trace back to the first map, ignore this token
-    if !completed_trace || token == last_map_token {
+    if !completed_trace {
       // builder.add_token(&token, true);
       continue;
     }

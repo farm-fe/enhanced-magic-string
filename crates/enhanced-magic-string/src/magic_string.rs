@@ -76,7 +76,7 @@ impl MagicString {
   }
 
   pub fn get_source_map_chain(&self) -> Vec<SourceMap> {
-    self
+    let mut chain = self
       .source_map_chain
       .iter()
       .map(|source| SourceMap::from_slice(source.as_bytes()).unwrap())
@@ -84,7 +84,10 @@ impl MagicString {
         // if the source map is empty, we should ignore it
         source.get_token_count() > 0
       })
-      .collect()
+      .collect::<Vec<_>>();
+    chain.reverse();
+
+    chain
   }
 
   pub fn prepend(&mut self, str: &str) {

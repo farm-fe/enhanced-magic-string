@@ -211,11 +211,15 @@ impl Bundle {
 
             let mut is_trace_completed = true;
             let mut map_token = token;
+            // let mut traced_tokens = vec![token];
 
             for map in source_map_chain.iter() {
               // if the token can not be found in source map chain, it will be ignored.
-              if let Some(m_token) = lookup_token(map, token.get_src_line(), token.get_src_col()) {
+              if let Some(m_token) =
+                lookup_token(map, map_token.get_src_line(), map_token.get_src_col())
+              {
                 map_token = m_token;
+                // traced_tokens.push(map_token);
               } else {
                 is_trace_completed = false;
                 break;
@@ -223,6 +227,18 @@ impl Bundle {
             }
 
             if is_trace_completed {
+              // // print the traced token chain
+              // for token in traced_tokens.iter() {
+              //   print!(
+              //     "({}:{}:{}:{}) -> ",
+              //     token.get_dst_line(),
+              //     token.get_dst_col(),
+              //     token.get_src_line(),
+              //     token.get_src_col()
+              //   );
+              // }
+              // println!();
+
               let src = if let Some(src) = map_token.get_source() {
                 Some(if let Some(remap_source) = &opts.remap_source {
                   mapped_src_cache

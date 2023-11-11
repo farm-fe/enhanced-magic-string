@@ -3,6 +3,7 @@ use std::{
   path::PathBuf,
 };
 
+use farmfe_utils::file_url_to_path;
 use sourcemap::{SourceMap, SourceMapBuilder, Token};
 
 pub struct CollapseSourcemapOptions {
@@ -34,6 +35,14 @@ pub fn collapse_sourcemap_chain(
   opts: CollapseSourcemapOptions,
 ) -> SourceMap {
   chain.reverse();
+  chain = chain
+    .into_iter()
+    .filter(|map| map.get_token_count() > 0)
+    .collect();
+
+  if chain.is_empty() {
+    panic!("source map chain is empty");
+  }
 
   let dest_map = &chain[0];
   let mut builder = SourceMapBuilder::new(None);
@@ -117,7 +126,12 @@ pub fn lookup_token<'a>(map: &'a SourceMap, line: u32, col: u32) -> Option<Token
     // mapped to the last token of previous line.
     if token.get_dst_line() == line - 1 && token.get_dst_col() > 0 {
       let next_token = map.lookup_token(line + 1, 0);
-      return next_token;
+
+      if let Some(next_token) = next_token {
+        if next_token.get_dst_line() == line {
+          return Some(next_token);
+        }
+      }
     }
   }
 
@@ -128,6 +142,7 @@ pub fn read_source_content(token: Token<'_>, map: &SourceMap) -> Option<String> 
   if let Some(view) = token.get_source_view() {
     Some(view.source().to_string())
   } else if let Some(src) = token.get_source() {
+    let src = &file_url_to_path(src);
     // try read source content from disk
     let map_file = map.get_file();
 

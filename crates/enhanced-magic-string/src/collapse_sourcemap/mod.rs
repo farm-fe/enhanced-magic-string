@@ -41,7 +41,8 @@ pub fn collapse_sourcemap_chain(
     .collect();
 
   if chain.is_empty() {
-    panic!("source map chain is empty");
+    let builder = SourceMapBuilder::new(None);
+    return builder.into_sourcemap();
   }
 
   let dest_map = &chain[0];

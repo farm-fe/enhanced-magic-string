@@ -1,6 +1,10 @@
 use std::fmt::{Debug, Display};
 
-#[derive(Clone, PartialEq, Eq)]
+use farmfe_macro_cache_item::cache_item;
+
+#[cache_item]
+#[derive(Clone, PartialEq, Eq, Hash)]
+#[archive_attr(derive(Hash, Eq, PartialEq))]
 pub struct CharString {
   chars: Vec<char>,
 }

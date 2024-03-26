@@ -1,6 +1,8 @@
 use std::ptr::NonNull;
 
+use farmfe_macro_cache_item::cache_item;
 use parking_lot::Mutex;
+use rkyv::with::Skip;
 
 use crate::utils::char_string::CharString;
 
@@ -20,6 +22,8 @@ use crate::utils::char_string::CharString;
 // unsafe impl<T> Send for ThreadSafeNonNull<T> {}
 // unsafe impl<T> Sync for ThreadSafeNonNull<T> {}
 
+#[cache_item]
+#[derive(Debug)]
 pub struct Chunk {
   pub start: usize,
   pub end: usize,
@@ -31,8 +35,9 @@ pub struct Chunk {
   pub content: CharString,
   pub store_name: bool,
   pub edited: bool,
-
+  #[with(Skip)]
   previous: Mutex<Option<Box<Chunk>>>,
+  #[with(Skip)]
   next: Mutex<Option<Box<Chunk>>>,
 }
 
@@ -47,6 +52,7 @@ impl Chunk {
       content,
       store_name: false,
       edited: false,
+
       previous: Mutex::new(None),
       next: Mutex::new(None),
     }
@@ -129,6 +135,22 @@ impl Chunk {
 impl ToString for Chunk {
   fn to_string(&self) -> String {
     format!("{}{}{}", self.intro, self.content, self.outro)
+  }
+}
+impl Default for Chunk {
+  fn default() -> Self {
+    Self {
+      start: 0,
+      end: 0,
+      original: CharString::new(""),
+      intro: CharString::new(""),
+      outro: CharString::new(""),
+      store_name: false,
+      edited: false,
+      content: CharString::new(""),
+      previous: Mutex::new(None),
+      next: Mutex::new(None),
+    }
   }
 }
 

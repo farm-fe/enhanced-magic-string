@@ -145,6 +145,8 @@ impl Default for MagicString {
 
 #[cfg(test)]
 mod tests {
+  use rkyv::de::deserializers::SharedDeserializeMap;
+
   use super::*;
 
   #[test]

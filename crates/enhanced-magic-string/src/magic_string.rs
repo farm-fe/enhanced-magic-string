@@ -131,7 +131,9 @@ impl MagicString {
       }
     });
 
-    let sourcemap_builder = SourceMapBuilder::new(opts.file.as_ref().map(|f| f.as_str()));
+    let mut sourcemap_builder = SourceMapBuilder::new(opts.file.as_ref().map(|f| f.as_str()));
+    sourcemap_builder.add_source(&self.original.to_string());
+    mappings.into_sourcemap_mappings(&mut sourcemap_builder);
     Ok(sourcemap_builder.into_sourcemap())
   }
 

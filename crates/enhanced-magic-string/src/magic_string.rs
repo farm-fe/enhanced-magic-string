@@ -3,7 +3,8 @@ use std::{
   sync::Arc,
 };
 
-use crate::error::Result;
+use crate::{error::Result, utils::common::get_relative_path};
+use farmfe_utils::relative;
 use parking_lot::Mutex;
 use sourcemap::{SourceMap, SourceMapBuilder};
 
@@ -131,8 +132,23 @@ impl MagicString {
       }
     });
 
+    let source = if let Some(src) = &opts.source {
+      get_relative_path(opts.file.clone().unwrap_or_default().as_str(), src).unwrap()
+    } else {
+      opts.file.clone().unwrap_or_default()
+    };
+
     let mut sourcemap_builder = SourceMapBuilder::new(opts.file.as_ref().map(|f| f.as_str()));
-    sourcemap_builder.add_source(&self.original.to_string());
+    let src_id = sourcemap_builder.add_source(&source);
+
+    let inline_content = opts.include_content.unwrap_or(false);
+
+    let contet = if inline_content {
+      Some(self.original.to_string())
+    } else {
+      None
+    };
+    sourcemap_builder.set_source_contents(src_id, contet.as_deref());
     mappings.into_sourcemap_mappings(&mut sourcemap_builder);
     Ok(sourcemap_builder.into_sourcemap())
   }
@@ -172,14 +188,21 @@ mod tests {
 
   #[test]
   fn to_string() {
-    let mut magic_string = MagicString::new("hello world", None);
+    let mut magic_string = MagicString::new(
+      "hello world",
+      Some(MagicStringOptions {
+        filename: Some("./index.js".to_string()),
+        ..Default::default()
+      }),
+    );
     magic_string.append("!");
     magic_string.prepend("/* ");
     magic_string.append(" */");
 
     let magic_map = magic_string
       .generate_map(SourceMapOptions {
-        file: Some("index.map.js".to_string()),
+        include_content: Some(true),
+        file: Some("a.ts".to_string()),
         ..Default::default()
       })
       .unwrap();

@@ -60,7 +60,13 @@ fn bundle() {
       bundle.add_source(module, None).unwrap();
     });
 
-    bundle.prepend("/* header */\n");
+    let mut header = "/* header */\n".to_owned();
+
+    if cfg!(target_os = "windows") {
+      header = header.replace("\n", "\r\n");
+    }
+
+    bundle.prepend(&header);
     bundle.append("//# sourceMappingURL=output.js.map", None);
 
     let code = bundle.to_string();

@@ -18,6 +18,7 @@ fn get_relative_path_case() {
       ("./common/mod.file.js", "./common/test/mod.source.js"),
       ("./common/test/mod.file.js", "./common/mod.source.js"),
       ("a/b/c", "a/b"),
+      ("/Users/xxx/enhanced-magic-string/crates/enhanced-magic-string/tests/fixtures/magic-string", "/Users/xxx/enhanced-magic-string/crates/enhanced-magic-string/tests/fixtures/magic-string/basic.js")
     ];
 
     let mut result = String::from("");

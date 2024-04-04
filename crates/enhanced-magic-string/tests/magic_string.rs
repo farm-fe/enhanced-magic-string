@@ -3,7 +3,6 @@ use std::fs;
 use enhanced_magic_string::{
   magic_string::{MagicString, MagicStringOptions},
   types::SourceMapOptions,
-  utils::common::get_relative_path,
 };
 
 mod common;
@@ -13,27 +12,24 @@ fn magic_string() {
   fixture!("tests/fixtures/magic-string/basic.js", |file, _| {
     let content = fs::read_to_string(&file).unwrap();
     let dir = file.parent().unwrap();
+    let filename = Some(String::from("./fixtures/magic-string/basic.js"));
+
     let mut s = MagicString::new(
       &content,
       Some(MagicStringOptions {
-        filename: get_relative_path(
-          dir.to_string_lossy().to_string().as_str(),
-          file.clone().to_string_lossy().to_string().as_str(),
-        ),
+        filename: filename.clone(),
         ..Default::default()
       }),
     );
+
     s.prepend("/* Are you ok? */\n");
     s.append("/* this is magic string */\n");
 
     let map = s
       .generate_map(SourceMapOptions {
         include_content: Some(true),
-        file: Some(String::from("./basic.js.map")),
-        source: get_relative_path(
-          dir.to_string_lossy().to_string().as_str(),
-          file.clone().to_string_lossy().to_string().as_str(),
-        ),
+        file: Some(String::from("basic.js.map")),
+        source: filename.clone(),
         ..Default::default()
       })
       .unwrap();

@@ -1,1 +1,1 @@
-{"version":3,"file":"basic.js.map","sources":["basic.js"],"sourcesContent":["console.log('hello world!');\n"],"names":[],"mappings":";AAAA;"}
+{"version":3,"file":"basic.js.map","sources":["./fixtures/magic-string/basic.js"],"sourcesContent":["console.log('hello world!');\n"],"names":[],"mappings":";AAAA;"}

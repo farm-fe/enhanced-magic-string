@@ -1,15 +1,19 @@
-import path,{relative} from 'path';
+import path, { relative } from 'path';
 import fs, { writeFileSync } from 'fs';
 import test from 'ava'
 import fg from 'fast-glob';
 import MagicString, { Bundle } from 'magic-string';
 import { fileURLToPath } from 'url';
-import {get_relative_path} from './common/utils.mjs';
 
 export const currentDir = path.dirname(fileURLToPath(import.meta.url));
 
+
 test('bundle of expected magic-string result', (t) => {
   const paths = fg.sync("fixtures/bundle/**/input.js", { cwd: currentDir, absolute: true });
+
+  const get_relative_path = (dir, path) => {
+    return relative(dir, path).replace(/\\/g, '/');
+  }
 
   paths.forEach((inputPath) => {
     const dir = path.dirname(inputPath);

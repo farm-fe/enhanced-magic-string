@@ -2,7 +2,6 @@ import test from 'ava'
 import fg from 'fast-glob';
 import fs, { writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
-import { get_relative_path } from './common/utils.mjs';
 import path from 'path';
 import MagicString from 'magic-string';
 
@@ -14,11 +13,10 @@ test('expected magic-string result', (t) => {
     const dir = path.dirname(inputPath);
 
     const content = fs.readFileSync(inputPath, "utf-8");
-    const magicString = new MagicString(
-      content,
-      {
-        filename: get_relative_path(dir, inputPath)
-      });
+    const filename = "./fixtures/magic-string/basic.js";
+
+    const magicString = new MagicString(content, { filename });
+
     magicString.prepend("/* Are you ok? */\n");
     magicString.append("/* this is magic string */\n");
 
@@ -27,8 +25,9 @@ test('expected magic-string result', (t) => {
     const map = magicString.generateMap({
       includeContent: true,
       file: "basic.js.map",
-      source: get_relative_path(dir, inputPath),
+      source: filename,
     });
+
     writeFileSync(inputPath.replace("basic.js", "basic.js.map"), map.toString());
 
     t.is(true, true);

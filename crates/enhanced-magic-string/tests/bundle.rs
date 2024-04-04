@@ -10,6 +10,10 @@ use parking_lot::Mutex;
 
 mod common;
 
+fn normalize_newlines(input: &str) -> String {
+  input.replace("\r\n", "\n")
+}
+
 #[test]
 fn bundle() {
   fixture!("tests/fixtures/bundle/**/input.js", |file, _| {
@@ -60,13 +64,7 @@ fn bundle() {
       bundle.add_source(module, None).unwrap();
     });
 
-    let mut header = "/* header */\n".to_owned();
-
-    if cfg!(target_os = "windows") {
-      header = header.replace("\n", "\r\n");
-    }
-
-    bundle.prepend(&header);
+    bundle.prepend("/* header */\n");
     bundle.append("//# sourceMappingURL=output.js.map", None);
 
     let code = bundle.to_string();
@@ -81,7 +79,7 @@ fn bundle() {
     let map_str = String::from_utf8(src_buf).unwrap();
 
     let expected = std::fs::read_to_string(dir.join("output.js")).unwrap();
-    assert_eq!(code, expected);
+    assert_eq!(normalize_newlines(&code), normalize_newlines(&expected));
 
     let expected_map = std::fs::read_to_string(dir.join("output.js.map")).unwrap();
     assert_eq!(map_str, expected_map.replace(";\"}", "\"}"));
@@ -195,7 +193,7 @@ fn combine_string_with_original_sourcemap() {
     }
 
     let expected = std::fs::read_to_string(dir.join("output.js")).unwrap();
-    assert_eq!(code, expected);
+    assert_eq!(normalize_newlines(&code), normalize_newlines(&expected));
 
     if !dir.join("output.js.map").exists() {
       std::fs::write(dir.join("output.js.map"), &map_str).unwrap();

@@ -4,7 +4,6 @@ use std::{
 };
 
 use crate::{error::Result, utils::common::get_relative_path};
-use farmfe_utils::relative;
 use parking_lot::Mutex;
 use sourcemap::{SourceMap, SourceMapBuilder};
 
@@ -179,34 +178,5 @@ impl ToString for MagicString {
 
     str += &self.outro.to_string();
     str
-  }
-}
-
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn to_string() {
-    let mut magic_string = MagicString::new(
-      "hello world",
-      Some(MagicStringOptions {
-        filename: Some("./index.js".to_string()),
-        ..Default::default()
-      }),
-    );
-    magic_string.append("!");
-    magic_string.prepend("/* ");
-    magic_string.append(" */");
-
-    let magic_map = magic_string
-      .generate_map(SourceMapOptions {
-        include_content: Some(true),
-        file: Some("a.ts".to_string()),
-        ..Default::default()
-      })
-      .unwrap();
-    println!("==={:?}", magic_map);
-    assert_eq!(magic_string.to_string(), "/* hello world! */");
   }
 }

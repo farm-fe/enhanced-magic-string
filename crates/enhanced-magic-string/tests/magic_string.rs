@@ -5,6 +5,8 @@ use enhanced_magic_string::{
   types::SourceMapOptions,
 };
 
+use crate::common::normalize_newlines;
+
 mod common;
 
 #[test]
@@ -43,7 +45,10 @@ fn magic_string() {
     let map_str = String::from_utf8(str_buf).unwrap();
     let expect_map = fs::read_to_string(dir.join("basic.js.map")).unwrap();
 
-    assert_eq!(code, expect_code);
-    assert_eq!(map_str, expect_map.replace(";\"}", "\"}"));
+    assert_eq!(normalize_newlines(&code), normalize_newlines(&expect_code));
+    assert_eq!(
+      normalize_newlines(&map_str),
+      normalize_newlines(&expect_map.replace(";\"}", "\"}"))
+    );
   });
 }

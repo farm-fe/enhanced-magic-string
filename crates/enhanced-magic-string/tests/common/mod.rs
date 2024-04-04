@@ -63,3 +63,7 @@ where
     panic!("no fixtures found under {}", pattern);
   }
 }
+
+pub fn normalize_newlines(input: &str) -> String {
+  input.replace("\r\n", "\n")
+}

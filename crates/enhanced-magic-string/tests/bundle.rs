@@ -8,11 +8,9 @@ use enhanced_magic_string::{
 use farmfe_utils::relative;
 use parking_lot::Mutex;
 
-mod common;
+use crate::common::normalize_newlines;
 
-fn normalize_newlines(input: &str) -> String {
-  input.replace("\r\n", "\n")
-}
+mod common;
 
 #[test]
 fn bundle() {
@@ -82,7 +80,10 @@ fn bundle() {
     assert_eq!(normalize_newlines(&code), normalize_newlines(&expected));
 
     let expected_map = std::fs::read_to_string(dir.join("output.js.map")).unwrap();
-    assert_eq!(map_str, expected_map.replace(";\"}", "\"}"));
+    assert_eq!(
+      normalize_newlines(&map_str),
+      normalize_newlines(&expected_map.replace(";\"}", "\"}"))
+    );
   });
 }
 
@@ -200,6 +201,9 @@ fn combine_string_with_original_sourcemap() {
     }
 
     let expected_map = std::fs::read_to_string(dir.join("output.js.map")).unwrap();
-    assert_eq!(map_str, expected_map.replace(";\"}", "\"}"));
+    assert_eq!(
+      normalize_newlines(&map_str),
+      normalize_newlines(&expected_map.replace(";\"}", "\"}"))
+    );
   });
 }

@@ -47,4 +47,4 @@ jobs:
         run: npm install -g pnpm@8.15.1 && pnpm i --frozen-lockfile
 
       - name: Run cargo test
-        run: cargo test -p enhanced-magic-string --release --tests
+        run: pnpm test && cargo test -p enhanced-magic-string --release --tests

@@ -189,16 +189,12 @@ fn combine_string_with_original_sourcemap() {
     map.to_writer(&mut src_buf).unwrap();
     let map_str = String::from_utf8(src_buf).unwrap();
 
-    if !dir.join("output.js").exists() {
-      std::fs::write(dir.join("output.js"), &code).unwrap();
-    }
+    std::fs::write(dir.join("output.js"), &code).unwrap();
 
     let expected = std::fs::read_to_string(dir.join("output.js")).unwrap();
     assert_eq!(normalize_newlines(&code), normalize_newlines(&expected));
 
-    if !dir.join("output.js.map").exists() {
-      std::fs::write(dir.join("output.js.map"), &map_str).unwrap();
-    }
+    std::fs::write(dir.join("output.js.map"), &map_str).unwrap();
 
     let expected_map = std::fs::read_to_string(dir.join("output.js.map")).unwrap();
     assert_eq!(

@@ -28,7 +28,7 @@ fn get_relative_path_case() {
       result.push(';');
     }
 
-    f cfg!(windows) {
+    if cfg!(windows) {
       result = result.replace("\\", "/");
     }
 

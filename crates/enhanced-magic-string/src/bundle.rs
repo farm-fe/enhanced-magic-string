@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-use farmfe_utils::relative;
 use sourcemap::{SourceMap, SourceMapBuilder};
 
 use crate::{

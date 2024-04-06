@@ -64,6 +64,7 @@ where
   }
 }
 
+// Solve some line break and path mismatch issues that occur across platforms.
 pub fn normalize_newlines(input: &str) -> String {
-  input.replace("\r\n", "\n")
+  input.replace("\r\n", "\n").replace("\\\\", "/")
 }

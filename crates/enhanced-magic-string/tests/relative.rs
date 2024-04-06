@@ -28,6 +28,10 @@ fn get_relative_path_case() {
       result.push(';');
     }
 
+    f cfg!(windows) {
+      result = result.replace("\\", "/");
+    }
+
     assert_eq!(result, expect_result);
   });
 }

@@ -125,7 +125,7 @@ pub fn lookup_token<'a>(map: &'a SourceMap, line: u32, col: u32) -> Option<Token
 
   if let Some(token) = token {
     // mapped to the last token of previous line.
-    if token.get_dst_line() == line - 1 && token.get_dst_col() > 0 {
+    if line > 0 && token.get_dst_line() == line - 1 && token.get_dst_col() > 0 {
       let next_token = map.lookup_token(line + 1, 0);
 
       if let Some(next_token) = next_token {

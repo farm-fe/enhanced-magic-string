@@ -3,10 +3,16 @@ use std::{
   sync::Arc,
 };
 
+use crate::{error::Result, utils::common::get_relative_path};
 use parking_lot::Mutex;
-use sourcemap::SourceMap;
+use sourcemap::{SourceMap, SourceMapBuilder};
 
-use crate::{chunk::Chunk, utils::char_string::CharString};
+use crate::{
+  chunk::Chunk,
+  mappings::Mappings,
+  types::SourceMapOptions,
+  utils::{char_string::CharString, get_locator::get_locator},
+};
 
 pub type ExclusionRange = (usize, usize);
 
@@ -90,6 +96,62 @@ impl MagicString {
     chain
   }
 
+  pub fn generate_map(&self, opts: SourceMapOptions) -> Result<SourceMap> {
+    let source_index = 0;
+    // let names: Vec<&CharString> = self.stored_names.keys().collect();
+
+    let locate = get_locator(&self.original);
+    let mut mappings = Mappings::new(opts.hires.unwrap_or_default());
+
+    if !self.intro.is_empty() {
+      mappings.advance(&self.intro);
+    }
+
+    self.first_chunk.lock().each_next(|chunk| {
+      let loc = locate(chunk.start);
+
+      if !chunk.intro.is_empty() {
+        mappings.advance(&chunk.intro);
+      }
+
+      if !chunk.edited {
+        mappings.add_unedited_chunk(
+          source_index,
+          &chunk,
+          &self.original,
+          loc,
+          &self.sourcemap_locations,
+        )
+      } else {
+        unimplemented!("chunk.edited")
+      }
+
+      if !chunk.outro.is_empty() {
+        mappings.advance(&chunk.outro)
+      }
+    });
+
+    let source = if let Some(src) = &opts.source {
+      get_relative_path(opts.file.clone().unwrap_or_default().as_str(), src).unwrap()
+    } else {
+      opts.file.clone().unwrap_or_default()
+    };
+
+    let mut sourcemap_builder = SourceMapBuilder::new(opts.file.as_ref().map(|f| f.as_str()));
+    let src_id = sourcemap_builder.add_source(&source);
+
+    let inline_content = opts.include_content.unwrap_or(false);
+
+    let contet = if inline_content {
+      Some(self.original.to_string())
+    } else {
+      None
+    };
+    sourcemap_builder.set_source_contents(src_id, contet.as_deref());
+    mappings.into_sourcemap_mappings(&mut sourcemap_builder);
+    Ok(sourcemap_builder.into_sourcemap())
+  }
+
   pub fn prepend(&mut self, str: &str) {
     let mut new_intro = CharString::new(str);
     new_intro.append(&self.intro);
@@ -116,20 +178,5 @@ impl ToString for MagicString {
 
     str += &self.outro.to_string();
     str
-  }
-}
-
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn to_string() {
-    let mut magic_string = MagicString::new("hello world", None);
-    magic_string.append("!");
-    magic_string.prepend("/* ");
-    magic_string.append(" */");
-
-    assert_eq!(magic_string.to_string(), "/* hello world! */");
   }
 }

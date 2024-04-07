@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-use farmfe_utils::relative;
 use sourcemap::{SourceMap, SourceMapBuilder};
 
 use crate::{
@@ -9,7 +8,7 @@ use crate::{
   magic_string::MagicString,
   mappings::Mappings,
   types::SourceMapOptions,
-  utils::{char_string::CharString, get_locator::get_locator},
+  utils::{char_string::CharString, common::get_relative_path, get_locator::get_locator},
 };
 
 #[derive(Default)]
@@ -174,7 +173,7 @@ impl Bundle {
 
     self.unique_sources.iter().for_each(|source| {
       let filename = if let Some(file) = &opts.file {
-        relative(file, &source.filename)
+        get_relative_path(file, &source.filename).unwrap()
       } else {
         source.filename.clone()
       };

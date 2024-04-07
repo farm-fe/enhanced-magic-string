@@ -1,0 +1,1 @@
+modules/a.js;output.js;test/mod.source.js;../mod.source.js;;magic-string/basic.js;

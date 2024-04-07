@@ -6,4 +6,4 @@ mod error;
 pub mod magic_string;
 mod mappings;
 pub mod types;
-mod utils;
+pub mod utils;

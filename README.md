@@ -29,7 +29,7 @@ Implement all APIs of [magic-string](https://www.npmjs.com/package/magic-string)
 - [ ] appendRight
 - [ ] clone
 - [ ] generateDecodedMap
-- [ ] generateMap
+- [x] generateMap
 - [ ] getIndentString
 - [ ] indent
 - [ ] move

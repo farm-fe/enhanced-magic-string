@@ -454,6 +454,7 @@ jobs:
   publish:
     name: Publish
     runs-on: ubuntu-latest
+    if: (github.ref == 'refs/heads/main' && github.event_name == 'push') || (github.event.pull_request.base.ref == 'main' && github.event.pull_request.merged == true)
     needs:
       - build-freebsd
       - test-macOS-windows-binding

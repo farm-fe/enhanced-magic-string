@@ -1,5 +1,11 @@
 # Changelog
-All notable changes to this project will be documented in this file.
+
+## 0.0.1
+
+### Patch Changes
+
+- d560ed4: fix: ci publish
+  All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -9,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.0](https://github.com/farm-fe/enhanced-magic-string/releases/tag/farmfe-enhanced-magic-string-v0.0.0) - 2024-04-09
 
 ### Added
+
 - add test case & fix relative path
 - mapping to sourcemap
 - add the generate_map method.
@@ -18,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - init project
 
 ### Fixed
+
 - ci test
 - test case
 - test case
@@ -32,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - remap_source does not work for modules without original sourcemap
 
 ### Other
+
 - add release-plz
 - publish npm
 - fix
@@ -43,7 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - fix node version
 - toolchain stable
 - ci
-- 修改ci脚本
+- 修改 ci 脚本
 - 0.0.2
 - 0.0.1
 - update readme

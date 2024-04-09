@@ -40,7 +40,12 @@
     "build:debug": "napi build --platform",
     "prepublishOnly": "napi prepublish -t npm",
     "test": "ava",
+    "bump": "node ./scripts/bump.mjs",
+    "release": "node ./scripts/release.mjs",
     "universal": "napi universal",
     "version": "napi version"
+  },
+  "dependencies": {
+    "@changesets/cli": "^2.27.1"
   }
 }

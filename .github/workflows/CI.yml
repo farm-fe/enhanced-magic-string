@@ -59,7 +59,7 @@ jobs:
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian-aarch64
             build: |-
               set -e &&
-              pnpm build --target aarch64-unknown-linux-gnu &&
+              yarn build --target aarch64-unknown-linux-gnu &&
               aarch64-unknown-linux-gnu-strip *.node
           - host: ubuntu-latest
             target: armv7-unknown-linux-gnueabihf
@@ -93,9 +93,9 @@ jobs:
     name: stable - ${{ matrix.settings.target }} - node@20
     runs-on: ${{ matrix.settings.host }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         if: ${{ !matrix.settings.docker }}
         with:
           node-version: 20
@@ -106,7 +106,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         if: ${{ !matrix.settings.docker }}
         with:
-          toolchain: nightly-2023-11-04
+          toolchain: stable
           targets: ${{ matrix.settings.target }}
       - name: Cache cargo
         uses: actions/cache@v3
@@ -131,7 +131,7 @@ jobs:
         run: pnpm config set supportedArchitectures.cpu "ia32"
         shell: bash
       - name: Install dependencies
-        run: npm install -g pnpm@8.15.1 && pnpm i --frozen-lockfile
+        run: npm install -g pnpm@8.15.1 && pnpm install --no-frozen-lockfile
 
       - name: Setup node x86
         uses: actions/setup-node@v3
@@ -158,35 +158,35 @@ jobs:
           path: ${{ env.APP_NAME }}.*.node
           if-no-files-found: error
   build-freebsd:
-    runs-on: macos-12
+    runs-on: macos-13
     name: Build FreeBSD
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build
         id: build
-        uses: vmactions/freebsd-vm@v0
+        uses: cross-platform-actions/action@v0.23.0
         env:
           DEBUG: napi:*
-          RUSTUP_HOME: /usr/local/rustup
-          CARGO_HOME: /usr/local/cargo
           RUSTUP_IO_THREADS: 1
         with:
-          envs: DEBUG RUSTUP_HOME CARGO_HOME RUSTUP_IO_THREADS
-          usesh: true
-          mem: 3000
-          prepare: |
-            pkg install -y -f curl node libnghttp2 npm pnpm
+          operating_system: freebsd
+          version: '13.2'
+          memory: 13G
+          cpu_count: 3
+          environment_variables: 'DEBUG RUSTUP_IO_THREADS'
+          shell: bash
+          run: |
+            sudo pkg install -y -f curl node libnghttp2 npm
+            sudo npm install -g pnpm
             curl https://sh.rustup.rs -sSf --output rustup.sh
             sh rustup.sh -y --profile minimal --default-toolchain beta
-            export PATH="/usr/local/cargo/bin:$PATH"
+            source "$HOME/.cargo/env"
             echo "~~~~ rustc --version ~~~~"
             rustc --version
             echo "~~~~ node -v ~~~~"
             node -v
             echo "~~~~ pnpm --version ~~~~"
             pnpm --version
-          run: |
-            export PATH="/usr/local/cargo/bin:$PATH"
             pwd
             ls -lah
             whoami
@@ -194,13 +194,11 @@ jobs:
             freebsd-version
             pnpm install
             pnpm build
-            strip -x *.node
-            pnpm test
             rm -rf node_modules
             rm -rf target
             rm -rf .pnpm/cache
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bindings-freebsd
           path: ${{ env.APP_NAME }}.*.node
@@ -218,7 +216,6 @@ jobs:
           - host: windows-latest
             target: x86_64-pc-windows-msvc
         node:
-          - '14'
           - '16'
           - '18'
     runs-on: ${{ matrix.settings.host }}
@@ -230,7 +227,7 @@ jobs:
           node-version: ${{ matrix.node }}
           check-latest: true
       - name: Install dependencies
-        run: npm install -g pnpm@8.15.1 && pnpm i --frozen-lockfile
+        run: npm install -g pnpm@8.15.1 && pnpm install --no-frozen-lockfile
 
       - name: Download artifacts
         uses: actions/download-artifact@v3
@@ -250,7 +247,6 @@ jobs:
       fail-fast: false
       matrix:
         node:
-          - '14'
           - '16'
           - '18'
     runs-on: ubuntu-latest
@@ -262,7 +258,7 @@ jobs:
           node-version: ${{ matrix.node }}
           check-latest: true
       - name: Install dependencies
-        run: npm install -g pnpm@8.15.1 && pnpm i --frozen-lockfile
+        run: npm install -g pnpm@8.15.1 && pnpm install --no-frozen-lockfile
 
       - name: Download artifacts
         uses: actions/download-artifact@v3
@@ -273,7 +269,7 @@ jobs:
         run: ls -R .
         shell: bash
       - name: Test bindings
-        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-slim pnpm test
+        run: pnpm test
   test-linux-x64-musl-binding:
     name: Test bindings on x86_64-unknown-linux-musl - node@${{ matrix.node }}
     needs:
@@ -282,7 +278,6 @@ jobs:
       fail-fast: false
       matrix:
         node:
-          - '14'
           - '16'
           - '18'
     runs-on: ubuntu-latest
@@ -307,7 +302,7 @@ jobs:
         run: ls -R .
         shell: bash
       - name: Test bindings
-        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-alpine pnpm test
+        run: pnpm test
   test-linux-aarch64-gnu-binding:
     name: Test bindings on aarch64-unknown-linux-gnu - node@${{ matrix.node }}
     needs:
@@ -316,7 +311,6 @@ jobs:
       fail-fast: false
       matrix:
         node:
-          - '14'
           - '16'
           - '18'
     runs-on: ubuntu-latest
@@ -349,7 +343,7 @@ jobs:
           options: '--platform linux/arm64 -v ${{ github.workspace }}:/build -w /build'
           run: |
             set -e
-            pnpm test
+            npm run test
             ls -la
   test-linux-aarch64-musl-binding:
     name: Test bindings on aarch64-unknown-linux-musl - node@${{ matrix.node }}
@@ -384,7 +378,7 @@ jobs:
           options: '--platform linux/arm64 -v ${{ github.workspace }}:/build -w /build'
           run: |
             set -e
-            pnpm test
+            npm run test
   test-linux-arm-gnueabihf-binding:
     name: Test bindings on armv7-unknown-linux-gnueabihf - node@${{ matrix.node }}
     needs:
@@ -393,7 +387,6 @@ jobs:
       fail-fast: false
       matrix:
         node:
-          - '14'
           - '16'
           - '18'
     runs-on: ubuntu-latest
@@ -424,7 +417,7 @@ jobs:
           options: '--platform linux/arm/v7 -v ${{ github.workspace }}:/build -w /build'
           run: |
             set -e
-            pnpm test
+            npm run test
             ls -la
   universal-macOS:
     name: Build universal macOS binary
@@ -439,7 +432,7 @@ jobs:
           node-version: 18
           check-latest: true
       - name: Install dependencies
-        run: npm install -g pnpm@8.15.1 && pnpm i --frozen-lockfile
+        run: npm install -g pnpm@8.15.1 && pnpm install --no-frozen-lockfile
       - name: Download macOS x64 artifact
         uses: actions/download-artifact@v3
         with:
@@ -478,7 +471,7 @@ jobs:
           node-version: 18
           check-latest: true
       - name: Install dependencies
-        run: npm install -g pnpm@8.15.1 && pnpm i --frozen-lockfile
+        run: npm install -g pnpm@8.15.1 && pnpm install --no-frozen-lockfile
 
       - name: Download all artifacts
         uses: actions/download-artifact@v3
@@ -489,20 +482,12 @@ jobs:
       - name: List packages
         run: ls -R ./npm
         shell: bash
-      - name: Publish
-        run: |
-          npm config set provenance true
-          if git log -1 --pretty=%B | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+$";
-          then
-            echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-            npm publish --access public
-          elif git log -1 --pretty=%B | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+";
-          then
-            echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-            npm publish --tag next --access public
-          else
-            echo "Not a release, skipping publish"
-          fi
+      - name: Create Release Pull Request or Publish to npm
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          version: pnpm run bump
+          publish: npm run release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

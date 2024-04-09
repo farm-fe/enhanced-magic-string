@@ -185,18 +185,18 @@ jobs:
             rustc --version
             echo "~~~~ node -v ~~~~"
             node -v
-            echo "~~~~ yarn --version ~~~~"
-            yarn --version
+            echo "~~~~ pnpm --version ~~~~"
+            pnpm --version
             pwd
             ls -lah
             whoami
             env
             freebsd-version
-            yarn install
-            yarn build
+            pnpm install
+            pnpm build
             rm -rf node_modules
             rm -rf target
-            rm -rf .yarn/cache
+            rm -rf .pnpm/cache
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:

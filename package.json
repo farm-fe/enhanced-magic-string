@@ -42,5 +42,8 @@
     "test": "ava",
     "universal": "napi universal",
     "version": "napi version"
+  },
+  "dependencies": {
+    "@changesets/cli": "^2.27.1"
   }
 }

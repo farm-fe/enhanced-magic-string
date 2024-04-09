@@ -175,7 +175,8 @@ jobs:
           usesh: true
           mem: 3000
           prepare: |
-            pkg install -y -f curl node libnghttp2 npm pnpm
+            pkg install -y -f curl node libnghttp2 npm
+            npm i -g pnpm@8.15.1
             curl https://sh.rustup.rs -sSf --output rustup.sh
             sh rustup.sh -y --profile minimal --default-toolchain beta
             export PATH="/usr/local/cargo/bin:$PATH"

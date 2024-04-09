@@ -131,7 +131,7 @@ jobs:
         run: pnpm config set supportedArchitectures.cpu "ia32"
         shell: bash
       - name: Install dependencies
-        run: npm install -g pnpm@8.15.1 && pnpm i --frozen-lockfile
+        run: npm install -g pnpm@8.15.1 && pnpm install --no-frozen-lockfile
 
       - name: Setup node x86
         uses: actions/setup-node@v3
@@ -227,7 +227,7 @@ jobs:
           node-version: ${{ matrix.node }}
           check-latest: true
       - name: Install dependencies
-        run: npm install -g pnpm@8.15.1 && pnpm i --frozen-lockfile
+        run: npm install -g pnpm@8.15.1 && pnpm install --no-frozen-lockfile
 
       - name: Download artifacts
         uses: actions/download-artifact@v3
@@ -258,7 +258,7 @@ jobs:
           node-version: ${{ matrix.node }}
           check-latest: true
       - name: Install dependencies
-        run: npm install -g pnpm@8.15.1 && pnpm i --frozen-lockfile
+        run: npm install -g pnpm@8.15.1 && pnpm install --no-frozen-lockfile
 
       - name: Download artifacts
         uses: actions/download-artifact@v3
@@ -432,7 +432,7 @@ jobs:
           node-version: 18
           check-latest: true
       - name: Install dependencies
-        run: npm install -g pnpm@8.15.1 && pnpm i --frozen-lockfile
+        run: npm install -g pnpm@8.15.1 && pnpm install --no-frozen-lockfile
       - name: Download macOS x64 artifact
         uses: actions/download-artifact@v3
         with:
@@ -471,7 +471,7 @@ jobs:
           node-version: 18
           check-latest: true
       - name: Install dependencies
-        run: npm install -g pnpm@8.15.1 && pnpm i --frozen-lockfile
+        run: npm install -g pnpm@8.15.1 && pnpm install --no-frozen-lockfile
 
       - name: Download all artifacts
         uses: actions/download-artifact@v3

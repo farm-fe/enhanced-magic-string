@@ -1,4 +1,5 @@
 name: CI
+
 env:
   DEBUG: napi:*
   APP_NAME: magic-string
@@ -19,6 +20,8 @@ permissions:
       - .editorconfig
       - docs/**
   pull_request: null
+  workflow_call:
+  
 jobs:
   build:
     strategy:

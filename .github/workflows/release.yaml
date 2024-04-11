@@ -8,17 +8,17 @@ permissions:
 on:
   push:
     branches:
-      - main
+      - **
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
-  call-rust-build:
-    uses: ./.github/workflows/CI.yaml
+  call-build:
+    uses: ./.github/workflows/build.yaml
 
   release:
     name: Release
-    needs: [call-rust-build]
+    needs: [call-build]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo

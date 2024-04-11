@@ -5,6 +5,7 @@ members = ["crates/*"]
 edition = "2021"
 name = "farmfe-enhanced-magic-string"
 version = "0.0.0"
+publish = false
 
 [lib]
 crate-type = ["cdylib"]

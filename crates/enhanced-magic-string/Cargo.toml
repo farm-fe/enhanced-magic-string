@@ -6,6 +6,7 @@ description = "Rust based magic-string implementation with sourcemap chains supp
 authors = ["brightwu(吴明亮) <1521488775@qq.com>"]
 license = "MIT"
 repository = "https://github.com/farm-fe/enhanced-magic-string"
+git_release_enable = true 
 
 [dependencies]
 sourcemap = "6.2.3"

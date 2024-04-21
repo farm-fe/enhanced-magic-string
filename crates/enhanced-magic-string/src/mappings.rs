@@ -130,6 +130,7 @@ impl Mappings {
           src_col as u32,
           Some(src_id as u32),
           name_id,
+          false,
         );
       }
 

@@ -104,6 +104,7 @@ pub fn collapse_sourcemap_chain(
       last_map_token.get_src_col(),
       srd_id,
       name_id,
+      false,
     );
 
     if opts.inline_content && srd_id.is_some() && !builder.has_source_contents(srd_id.unwrap()) {

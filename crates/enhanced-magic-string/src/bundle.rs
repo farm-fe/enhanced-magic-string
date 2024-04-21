@@ -258,6 +258,7 @@ impl Bundle {
                 map_token.get_src_col(),
                 src.as_deref(),
                 map_token.get_name(),
+                false,
               );
 
               let inline_content = opts.include_content.unwrap_or(false);

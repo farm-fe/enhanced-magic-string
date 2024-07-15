@@ -161,11 +161,6 @@ impl Bundle {
 
       if !source.ignore_list.is_empty() {
         unimplemented!("source.ignore_list");
-        // if x_google_ignoreList.is_none() {
-        //   x_google_ignoreList = Some(vec![]);
-        // }
-
-        // x_google_ignoreList.as_mut().unwrap().push(source_index);
       }
     });
 

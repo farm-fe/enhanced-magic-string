@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.15](https://github.com/farm-fe/enhanced-magic-string/compare/enhanced-magic-string-v0.0.14...enhanced-magic-string-v0.0.15) - 2024-07-15
+
+### Other
+- update farmfe utils
+
 ## [0.0.14](https://github.com/farm-fe/enhanced-magic-string/compare/enhanced-magic-string-v0.0.13...enhanced-magic-string-v0.0.14) - 2024-04-21
 
 ### Added

@@ -182,7 +182,7 @@ dependencies = [
 
 [[package]]
 name = "enhanced-magic-string"
-version = "0.0.14"
+version = "0.0.15"
 dependencies = [
  "base64 0.22.0",
  "farmfe_utils",

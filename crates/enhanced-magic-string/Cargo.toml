@@ -11,7 +11,7 @@ git_release_enable = true
 [dependencies]
 sourcemap = "8.0.1"
 base64 = "0.22.0"
-farmfe_utils = "0.1.4"
+farmfe_utils = "0.1.5"
 regex = "1.10.0"
 parking_lot = { version = "0.12", features = ["deadlock_detection"] }
 
